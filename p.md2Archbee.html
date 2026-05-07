@@ -1,0 +1,181 @@
+# Author: Felschen, Manuel
+# Created: 2026-05-07
+# Purpose: Optimizes Markdown files exported from Paligo for import into Archbee.
+
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>p.md-2-archbee</title>
+
+<style>
+:root {
+    --primary: #03a9f4;
+    --background: #0f172a;
+    --card: #1e293b;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --button: #0284c7;
+    --button-hover: #0369a1;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--background);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+}
+
+.card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+h1 {
+    margin-top: 0;
+    font-size: 1.6rem;
+    color: var(--primary);
+}
+
+p {
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: var(--text);
+}
+
+button {
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--button);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: var(--button-hover);
+}
+
+.footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.success {
+    margin-top: 10px;
+    color: #22c55e;
+}
+ol {
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="card">
+        <h1>p.md-2-archbee</h1>
+
+        <p>
+            Dieses Tool optimiert aus Paligo exportierte Markdown-Dateien für den Import in Archbee.
+        </p>
+
+        <p>
+            <b>So geht's</b><br>
+	<ol>
+<li>Klicken Sie auf <b>Datei auswählen</b>.</li>
+<li>Wählen Sie eine zu optimierende Markdown-Datei aus.</li>
+<li>Klicken Sie auf <b>Markdown-Datei anpassen</b>.</li>
+	</ol>
+<p>
+Die Datei wird optimiert und anschließend automatisch heruntergeladen.
+</p>
+        </p>
+
+        <input type="file" id="fileInput" accept=".md">
+
+        <button type="button" onclick="processFile()">
+            Markdown-Datei anpassen
+        </button>
+
+        <div id="status" class="success"></div>
+    </div>
+
+    <div class="footer">
+        Die Optimierung läuft direkt im Browser – es werden keine Daten gespeichert.
+    </div>
+</div>
+
+<script>
+function processFile() {
+    const input = document.getElementById('fileInput');
+    const status = document.getElementById('status');
+
+    if (!input.files.length) {
+        alert("Bitte eine Datei auswählen.");
+        return;
+    }
+
+    const file = input.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const result = e.target.result;
+
+        const cleaned = result
+            .split(/\r?\n/)
+            .filter(line => !line.trim().match(/^<span\s+id="UUID-/))
+            .join("\n");
+
+        const newName = file.name.replace(/\.md$/i, "_Archbee.md");
+
+        const blob = new Blob([cleaned], { type: "text/markdown" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = newName;
+        a.click();
+
+        URL.revokeObjectURL(url);
+
+        status.textContent = "✅ Datei erfolgreich erstellt!";
+    };
+
+    reader.readAsText(file, "utf-8");
+}
+</script>
+
+</body>
+</html>
