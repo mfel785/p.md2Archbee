@@ -181,23 +181,25 @@ function processFile() {
 }
 
 /**
- * Konvertiert Paligo-Admonitions in Archbee-Hints.
+ * Konvertiert Paligo-Admonitions (Blockquotes mit [!NOTE]/[!WARNING]/...)
+ * in Archbee :::hint Blöcke.
  *
- * Paligo (Beispiel):
- *  > [!NOTE]
- *  > Text...
- *
- * Archbee:
- *  :::hint{type="info"}
- *  Text...
- *  :::
+ * Features:
+ * - erkennt mehrere Hinweise hintereinander
+ * - erhält Absätze (Leerzeilen innerhalb des >-Blocks)
+ * - erhält Markdown-Listen/Einrückungen (keine Zerstörung von "- ..." + Folgezeilen)
+ * - macht Fließtext nur bei "normalen" Absatzblöcken (kein List/Code/Heading)
+ * - normalisiert &nbsp; → Leerzeichen
+ * - robust gegen fehlenden Zeilenumbruch vor "> [!" (Copy/Paste/Export-Artefakte)
  */
 function convertPaligoAdmonitionsToArchbee(markdown) {
+    // Robust gegen "… verwendet.> [!WARNING]" (fehlender Zeilenumbruch)
+    markdown = markdown.replace(/([^\n])>\s*\[!/g, '$1\n> [!');
+
     const lines = markdown.split(/\r?\n/);
     const out = [];
 
-    // Mapping: Paligo-Tag -> Archbee hint type
-    // (Passe das Mapping bei Bedarf an euer Archbee/Styleguide an)
+    // Mapping: Paligo -> Archbee hint type (anpassbar)
     const typeMap = {
         NOTE: "info",
         IMPORTANT: "info",
@@ -207,9 +209,9 @@ function convertPaligoAdmonitionsToArchbee(markdown) {
         DANGER: "danger"
     };
 
-    // Start einer Paligo-Admonition:
+    // Start einer Admonition, inkl. optionalem Text in derselben Zeile:
     // > [!NOTE]
-    // oder: > [!NOTE] Text in der gleichen Zeile
+    // > [!WARNING] Achtung...
     const startRe = /^>\s*\[!(NOTE|IMPORTANT|TIP|WARNING|CAUTION|DANGER)\]\s*(.*)?$/i;
 
     let i = 0;
@@ -223,83 +225,123 @@ function convertPaligoAdmonitionsToArchbee(markdown) {
             continue;
         }
 
-        // Admonition erkannt
-        const paligoTypeRaw = (m[1] || "NOTE").toUpperCase();
-        const archbeeType = typeMap[paligoTypeRaw] || "info";
+        // Hinweis gefunden
+        const paligoType = (m[1] || "NOTE").toUpperCase();
+        const archbeeType = typeMap[paligoType] || "info";
 
-        // Content kann schon in derselben Zeile stehen: > [!NOTE] bla
-        const firstInline = (m[2] || "").trim();
+        // Text nach dem Marker in derselben Zeile
+        const firstInline = (m[2] || "");
 
-        // Sammle alle folgenden Blockquote-Zeilen, die zu diesem Hinweis gehören:
-        // alles was mit ">" beginnt (auch "> " oder ">\t")
+        // Blockquote-Inhalt sammeln
         const contentLines = [];
-        if (firstInline) contentLines.push(firstInline);
+        if (firstInline.trim() !== "") contentLines.push(firstInline);
 
-        i++; // nächste Zeile nach dem Marker
+        i++; // weiter nach dem Marker
         while (i < lines.length) {
             const l = lines[i];
 
-            // Ende des Blockquotes (= Ende des Hinweises), sobald die Zeile NICHT mit ">" beginnt
+            // Ende des Hinweis-Blocks: sobald die Zeile NICHT mit ">" startet
             if (!/^\s*>/.test(l)) break;
 
-            // ">" entfernen und führendes Leerzeichen entfernen
+            // Nur das führende ">" + optional 1 Space entfernen.
+            // Wichtig: Einrückungen für Listen/Code bleiben erhalten.
             const dequoted = l.replace(/^\s*>\s?/, "");
             contentLines.push(dequoted);
+
             i++;
         }
 
-        // Inhalt "ent-wrappen":
-        // Paligo bricht Sätze oft hart um (jede Zeile ist ein Umbruch).
-        // Wir fassen Zeilen innerhalb eines Absatzes zu Fließtext zusammen,
-        // behalten aber Leerzeilen als Absatztrennung bei.
-        const normalizedContent = unwrapHardLineBreaks(contentLines);
+        const normalizedContent = normalizeAdmonitionContent(contentLines);
 
         // Archbee hint Block erzeugen
         out.push(`:::hint{type="${archbeeType}"}`);
         out.push(normalizedContent);
         out.push(`:::`);
-        // Optional: Leerzeile danach, um Markdown sauber zu trennen
-        // out.push("");
+
+        // Leerzeile nur ergänzen, wenn im Original nicht sowieso eine Leerzeile folgt
+        if (i < lines.length && lines[i].trim() !== "") {
+            out.push("");
+        }
     }
 
-    return out.join("\n");
+    // Final: Mehrfach-Leerzeilen etwas glätten
+    return out.join("\n").replace(/\n{3,}/g, "\n\n");
 }
 
 /**
- * Macht aus hart umgebrochenen Zeilen Fließtext,
- * lässt aber Absatztrennungen (Leerzeilen) bestehen.
+ * Normalisiert den Inhalt eines Hinweises:
+ * - &nbsp; -> ' '
+ * - Absatzblöcke ohne Listen/Code werden zu Fließtext zusammengezogen
+ * - Listen/Code/Heading-Blöcke bleiben zeilenweise erhalten
+ * - Leerzeilen bleiben als Absatztrenner erhalten
  */
-function unwrapHardLineBreaks(lines) {
-    const paragraphs = [];
+function normalizeAdmonitionContent(lines) {
+    // &nbsp; normalisieren (Paligo)
+    const cleaned = lines.map(l => (l ?? "").replace(/&nbsp;/g, " "));
+
+    // In Blöcke aufteilen anhand Leerzeilen
+    const blocks = [];
     let buf = [];
 
     const flush = () => {
         if (buf.length) {
-            // Mehrere Spaces vermeiden
-            const singleLine = buf.join(" ").replace(/\s+/g, " ").trim();
-            paragraphs.push(singleLine);
+            blocks.push(buf);
             buf = [];
         }
     };
 
-    for (const raw of lines) {
-        const line = (raw ?? "").trimEnd();
-
-        // Leerzeile => Absatzende
+    for (const line of cleaned) {
         if (line.trim() === "") {
             flush();
-            paragraphs.push(""); // Absatztrennung behalten
-            continue;
+            blocks.push([""]); // Absatztrenner
+        } else {
+            buf.push(line);
         }
-
-        buf.push(line.trim());
     }
-
     flush();
 
-    // Um doppelte Leerzeilen zu reduzieren:
-    // (optional, wirkt "sauberer" in Archbee)
-    return paragraphs.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+    // Blockweise normalisieren
+    const outBlocks = blocks.map(block => {
+        // Leerzeilenblock
+        if (block.length === 1 && block[0] === "") return "";
+
+        // Strukturierte Markdown-Blöcke unverändert lassen
+        if (isStructuredMarkdownBlock(block)) {
+            return block.join("\n").trimEnd();
+        }
+
+        // Fließtext: Zeilen zu einem Absatz zusammenziehen
+        return block
+            .map(l => l.trim())
+            .join(" ")
+            .replace(/\s+/g, " ")
+            .trim();
+    });
+
+    // Mehrfach-Leerzeilen reduzieren
+    return outBlocks.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+/**
+ * Erkennt, ob ein Block strukturierte Markdown-Elemente enthält,
+ * die nicht "unwrappt" werden dürfen (Listen, Code, Headings, Tabellen).
+ */
+function isStructuredMarkdownBlock(blockLines) {
+    const listItemRe   = /^\s*(?:[-*+]\s+|\d+\.\s+)/; // - foo, 1. foo
+    const fencedCodeRe = /^\s*```/;                   // ``` fenced code
+    const indentedCodeRe = /^\s{4,}\S/;              // 4-spaces code
+    const headingRe    = /^\s{0,3}#{1,6}\s+/;        // # Heading
+    const hrRe         = /^\s*(?:---|\*\*\*|___)\s*$/;
+    const tableRe      = /^\s*\|.*\|\s*$/;           // einfache Pipe-Tabellenzeile
+
+    return blockLines.some(l =>
+        listItemRe.test(l) ||
+        fencedCodeRe.test(l) ||
+        indentedCodeRe.test(l) ||
+        headingRe.test(l) ||
+        hrRe.test(l) ||
+        tableRe.test(l)
+    );
 }
 </script>
 
