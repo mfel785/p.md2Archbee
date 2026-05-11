@@ -1,6 +1,6 @@
 # p.md2Archbee
 
-## 📄 Overview
+## Overview
 **p.md2Archbee** is a lightweight, browser-based tool that converts **Markdown files exported from Paligo** into a format compatible with **Archbee**.
 
 The tool runs entirely in the browser — no data is uploaded, stored, or processed on a server.
