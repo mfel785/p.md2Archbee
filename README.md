@@ -5,7 +5,6 @@
 
 The tool runs entirely in the browser — no data is uploaded, stored, or processed on a server.
 
----
 
 ## Features
 
@@ -20,7 +19,17 @@ The tool runs entirely in the browser — no data is uploaded, stored, or proces
 - Converts hard line breaks into readable text
 - Works offline (pure HTML + JavaScript)
 
----
+
+## How to Use
+
+Here's how it works
+
+1. Click "Select File."
+2. Select the Markdown file you want to optimize.
+3. Click "Adjust Markdown File."
+
+The file will be optimized and then automatically downloaded.
+
 
 ## Supported Hint Types
 
@@ -33,19 +42,6 @@ The tool runs entirely in the browser — no data is uploaded, stored, or proces
 | CAUTION  | warning|
 | DANGER   | danger |
 
----
-
-## How to Use
-
-Here's how it works
-
-1. Click "Select File."
-2. Select the Markdown file you want to optimize.
-3. Click "Adjust Markdown File."
-
-The file will be optimized and then automatically downloaded.
-
----
 
 ## Security
 
@@ -54,7 +50,6 @@ The file will be optimized and then automatically downloaded.
 - No data storage  
 - No data transmission  
 
----
 
 ## Technical Details
 
@@ -63,7 +58,6 @@ The file will be optimized and then automatically downloaded.
 - Uses Blob API for downloads  
 - No dependencies  
 
----
 
 ## Known Limitations
 
@@ -71,7 +65,6 @@ The file will be optimized and then automatically downloaded.
 - Nested blockquotes (`>>`) are not fully supported  
 - Very complex Markdown structures may need manual adjustment  
 
----
 
 ## Possible Enhancements
 
@@ -81,14 +74,12 @@ The file will be optimized and then automatically downloaded.
 - UI improvements  
 - Batch processing  
 
----
 
 ## Author
 
 **mfel**  
 Created: 2026-05-07  
 
----
 
 ## Version
 
