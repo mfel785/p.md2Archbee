@@ -24,9 +24,9 @@ The tool runs entirely in the browser — no data is uploaded, stored, or proces
 
 Here's how it works
 
-1. Click "Select File."
+1. Click **Select File** or **Datei auswählen**.
 2. Select the Markdown file you want to optimize.
-3. Click "Adjust Markdown File."
+3. Click **Adjust Markdown File.**
 
 The file will be optimized and then automatically downloaded.
 
