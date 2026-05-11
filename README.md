@@ -47,22 +47,6 @@ The file will be optimized and then automatically downloaded.
 
 ---
 
-## Deployment (GitHub Pages)
-
-1. Create a repository  
-2. Upload `index.html` to the root  
-3. Go to:  
-   Settings → Pages  
-
-4. Set:  
-   Source: Deploy from branch  
-   Branch: main / (root)  
-
-5. Access your tool:  
-   https://<username>.github.io/<repository>/
-
----
-
 ## Security
 
 - Runs completely in the browser  
