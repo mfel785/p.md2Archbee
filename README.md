@@ -9,38 +9,16 @@ The tool runs entirely in the browser — no data is uploaded, stored, or proces
 
 ## Features
 
-- ✅ Removes Paligo UUID artifacts (`<span id="UUID-...">`)
-- ✅ Converts Paligo admonitions (`> [!NOTE]`, `> [!WARNING]`, etc.)
+- Removes Paligo UUID artifacts (`<span id="UUID-...">`)
+- Converts Paligo admonitions (`> [!NOTE]`, `> [!WARNING]`, etc.)
   → into Archbee `:::hint` blocks
-- ✅ Supports multiple consecutive hints
-- ✅ Preserves:
+- Supports multiple consecutive hints
+- Preserves:
   - paragraphs
   - lists
   - indentation
-- ✅ Converts hard line breaks into readable text
-- ✅ Works offline (pure HTML + JavaScript)
-
----
-
-## Example Conversion
-
-### Input (Paligo)
-
-    > [!NOTE]
-    > This is a note with multiple
-    > lines.
-    >
-    > - Item 1
-    > - Item 2
-
-### Output (Archbee)
-
-    :::hint{type="info"}
-    This is a note with multiple lines.
-
-    - Item 1
-    - Item 2
-    :::
+- Converts hard line breaks into readable text
+- Works offline (pure HTML + JavaScript)
 
 ---
 
@@ -87,10 +65,10 @@ The file will be optimized and then automatically downloaded.
 
 ## Security
 
-- ✅ Runs completely in the browser  
-- ✅ No external API calls  
-- ✅ No data storage  
-- ✅ No data transmission  
+- Runs completely in the browser  
+- No external API calls  
+- No data storage  
+- No data transmission  
 
 ---
 
