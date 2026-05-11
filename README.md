@@ -7,7 +7,7 @@ The tool runs entirely in the browser — no data is uploaded, stored, or proces
 
 ---
 
-## 🚀 Features
+## Features
 
 - ✅ Removes Paligo UUID artifacts (`<span id="UUID-...">`)
 - ✅ Converts Paligo admonitions (`> [!NOTE]`, `> [!WARNING]`, etc.)
@@ -22,7 +22,7 @@ The tool runs entirely in the browser — no data is uploaded, stored, or proces
 
 ---
 
-## 🔄 Example Conversion
+## Example Conversion
 
 ### Input (Paligo)
 
@@ -44,7 +44,7 @@ The tool runs entirely in the browser — no data is uploaded, stored, or proces
 
 ---
 
-## 🧩 Supported Hint Types
+## Supported Hint Types
 
 | Paligo    | Archbee |
 |----------|--------|
@@ -57,7 +57,7 @@ The tool runs entirely in the browser — no data is uploaded, stored, or proces
 
 ---
 
-## 🛠️ How to Use
+## How to Use
 
 Here's how it works
 
@@ -69,7 +69,7 @@ The file will be optimized and then automatically downloaded.
 
 ---
 
-## 🌐 Deployment (GitHub Pages)
+## Deployment (GitHub Pages)
 
 1. Create a repository  
 2. Upload `index.html` to the root  
@@ -85,7 +85,7 @@ The file will be optimized and then automatically downloaded.
 
 ---
 
-## 🔐 Security
+## Security
 
 - ✅ Runs completely in the browser  
 - ✅ No external API calls  
@@ -94,7 +94,7 @@ The file will be optimized and then automatically downloaded.
 
 ---
 
-## ⚙️ Technical Details
+## Technical Details
 
 - HTML5, CSS3, Vanilla JavaScript  
 - Uses FileReader API  
@@ -103,7 +103,7 @@ The file will be optimized and then automatically downloaded.
 
 ---
 
-## 🧪 Known Limitations
+## Known Limitations
 
 - Only supports standard Paligo admonition syntax (`> [!TYPE]`)  
 - Nested blockquotes (`>>`) are not fully supported  
@@ -111,7 +111,7 @@ The file will be optimized and then automatically downloaded.
 
 ---
 
-## 💡 Possible Enhancements
+## Possible Enhancements
 
 - Drag & Drop upload  
 - Additional Markdown transformations  
@@ -121,13 +121,13 @@ The file will be optimized and then automatically downloaded.
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 **mfel**  
 Created: 2026-05-07  
 
 ---
 
-## ✅ Version
+## Version
 
 v1.0 – Initial Release
